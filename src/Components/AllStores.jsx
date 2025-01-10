@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 
 const AllStores = ({ className }) => {
-  
+
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false); // Loading is false initially
   const [error, setError] = useState(null);
@@ -13,8 +13,8 @@ const AllStores = ({ className }) => {
     const storedFavorites = localStorage.getItem("favoriteStores");
     return storedFavorites ? JSON.parse(storedFavorites) : [];
   });
+
   const { categoryId } = useParams();
-  // console.log(categoryId)
   const observer = useRef();
 
   const lastStoreElementRef = useCallback(
