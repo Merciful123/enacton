@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Categories from "./Components/Categories";
@@ -22,6 +22,13 @@ function classNames(...classes) {
 }
 
 export default function App() {
+  // code added by aamir starts
+  const [selectedCategory, setSelectedCategory] = useState(null); // State for selected category
+
+  const handleCategorySelect = (categoryId) => {
+    setSelectedCategory(categoryId);
+  };
+  // code added by aamir ends
   return (
     <>
       <div className="min-h-full">
@@ -207,8 +214,14 @@ export default function App() {
           </header>
           <main className="">
             <div className="mx-auto grid grid-cols-3 grid-flow-col max-w-7xl sm:px-6 lg:px-8">
-              <Categories className="bg-white shadow-xl min-h-4" />
-              <AllStores className="bg-white shadow-xl col-span-2 min-h-4" />
+              <Categories
+                onCategorySelect={handleCategorySelect}
+                className="bg-white shadow-xl min-h-4"
+              />
+              <AllStores
+                selectedCategory={selectedCategory}
+                className="bg-white shadow-xl col-span-2 min-h-4"
+              />
             </div>
           </main>
         </div>
