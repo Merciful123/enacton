@@ -3,32 +3,30 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Categories from "./Components/Categories";
 import AllStores from "./Components/AllStores";
-
 const user = {
   name: "Tom Cook",
   email: "tom@example.com",
   imageUrl:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
 };
-const navigation = [
-  { name: "Stores", href: "#", current: true },
-];
-const userNavigation = [
-  
-];
+const navigation = [{ name: "Stores", href: "#", current: true }];
+const userNavigation = [];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function App() {
-  // code added by aamir starts
-  const [selectedCategory, setSelectedCategory] = useState(null); // State for selected category
+
+  // category state managed here to pass as a prop to allstore comp
+
+  const [selectedCategory, setSelectedCategory] = useState(null); 
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId);
   };
-  // code added by aamir ends
+ 
+
   return (
     <>
       <div className="min-h-full">
@@ -41,12 +39,12 @@ export default function App() {
                     <div className="flex flex-shrink-0 items-center">
                       <img
                         className="block h-8 w-auto lg:hidden"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                        src="https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190fb1800d4a5c7f07ba4b1345a9c8.svg"
                         alt="Your Company"
                       />
                       <img
                         className="hidden h-8 w-auto lg:block"
-                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+                        src="https://tailwindcss.com/_next/static/media/tailwindcss-mark.3c5441fc7a190fb1800d4a5c7f07ba4b1345a9c8.svg"
                         alt="Your Company"
                       />
                     </div>
@@ -204,23 +202,26 @@ export default function App() {
           )}
         </Disclosure>
 
-        <div className="py-10">
+        <div className="py-6">
           <header>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">
+              <h1 className="text-2xl font-bold leading-tight tracking-tight text-gray-900">
                 Stores Gallery
               </h1>
             </div>
           </header>
           <main className="">
-            <div className="mx-auto grid grid-cols-3 grid-flow-col max-w-7xl sm:px-6 lg:px-8">
+            {/* <div className="mx-auto grid grid-cols-3 grid-flow-col max-w-7xl sm:px-6 lg:px-8"> */}
+            <div className="mx-auto  grid grid-cols-[1fr_10fr] gap-10 max-w-7xl sm:px-6 lg:px-8">
               <Categories
-                onCategorySelect={handleCategorySelect}
-                className="bg-white shadow-xl min-h-4"
+                selectedCategory={selectedCategory}
+                setSelectedCategory={handleCategorySelect}
+                className=" shadow-xl min-h-4 p-2 bg-slate-100 rounded-lg"
+                path="cat"
               />
               <AllStores
                 selectedCategory={selectedCategory}
-                className="bg-white shadow-xl col-span-2 min-h-4"
+                className=" shadow-xl  min-h-4 p-4 bg-slate-100 rounded-lg"
               />
             </div>
           </main>
