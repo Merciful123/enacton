@@ -71,41 +71,6 @@ To set up the project locally, follow these steps:
 - Paginate the results with page number and limit parameters. 
    Example: http://localhost:3001/stores?_page=1&_limit=20
 
-For more information, refer to the [JSON Server Documentation](https://github.com/typicode/json-server/tree/v0?tab=readme-ov-file).
-
-### Requirements
-
-1. **Project Setup**: Ensure the project is set up correctly according to the provided instructions.
-
-2. **Sidebar Categories**: Display a list of available categories in the sidebar.
-
-3. **Main Section**: Show a paginated list of stores in the main section, loading only the first page initially.
-
-4. **Infinite Scroll**: Implement infinite scroll to load more stores dynamically as the user scrolls, similar to Instagram feeds.
-
-5. **Category Filter**: Filter stores based on the selected category and highlight the selected category in the sidebar.
-
-6. **Store Sorting**: Provide options to sort stores by name, featured, popularity, and cashback.
-
-7. **Store Filters**: Allow filtering by category, status (active, coming soon, discontinued), alphabet, and boolean attributes such as cashback enabled, promoted, and share & earn enabled.
-
-8. **Store Search**: Enable searching stores by name.
-
-9. **Bookmark Stores**: Allow users to favorite stores, with the favorite status stored locally and indicated by a red heart icon in the UI.
-
-10. **URL Parameters**: Store filter, search, and sort options in the URL parameters to replicate the user's browsing state when sharing URLs.
-
-### Store Card Rendering
-
-
-- **Cashback Display Logic**:
-  - If `cashback_enabled` is `0`, display "No cashback available".
-  - If `cashback_enabled` is `1`, construct the cashback string as follows:
-    - Start with the `rate_type` attribute, which can be either "upto" or "flat".
-    - Check the `amount_type`:
-      - If it is "fixed", prefix the `cashback_amount` with "$".
-      - If it is "percent", suffix the `cashback_amount` with "%".
-    - Ensure the `cashback_amount` is formatted to two decimal places.
 
 - **Favourite Button heart icon**:  Clicking this button, user marks the store as a favourite.
 
