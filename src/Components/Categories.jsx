@@ -3,12 +3,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Categories = ({ className, selectedCategory, setSelectedCategory }) => {
-  
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
+
+  // fetching categories list
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -24,6 +26,9 @@ const Categories = ({ className, selectedCategory, setSelectedCategory }) => {
 
     fetchCategories();
   }, []);
+
+  
+  // navigatting to selected category store
 
   const handleCategorySelect = (categoryId) => {
     setSelectedCategory(categoryId);

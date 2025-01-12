@@ -206,7 +206,7 @@ const AllStores = ({ className, selectedCategory }) => {
 
   const stores = data?.pages.flatMap((page) => page.data) || [];
 
-  // Handling  search input
+  // Handling  search input query
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
