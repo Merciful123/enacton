@@ -214,11 +214,11 @@ export default function App() {
           </header>
           <main className="">
             {/* <div className="mx-auto grid grid-cols-3 grid-flow-col max-w-7xl sm:px-6 lg:px-8"> */}
-            <div className="mx-auto  grid grid-cols-[1fr_4fr] gap-10 max-w-7xl sm:px-6 lg:px-8">
+            <div className="mx-auto  grid md:grid-cols-[1fr_4fr] gap-10 max-w-7xl sm:px-6 lg:px-8">
               <Categories
                 selectedCategory={selectedCategory}
                 setSelectedCategory={handleCategorySelect}
-                className=" shadow-xl min-h-4 p-2 py-4 bg-slate-100 rounded-lg  "
+                className=" shadow-xl p-2 py-4 bg-slate-100 rounded-lg  lg:sticky lg:top-0"
                 path="cat"
               />
               <AllStores

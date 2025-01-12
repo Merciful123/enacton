@@ -220,7 +220,7 @@ const AllStores = ({ className, selectedCategory }) => {
 
   return (
     <>
-      <div className="grid grid-rows-[1fr_auto]">
+      <div className="grid md:grid-rows-[auto_1fr]">
         <div className="flex justify-between bg-slate-100 p-4 rounded-lg">
           <div className="flex flex-col">
             <h2 className="text-lg font-semibold mb-2">
@@ -228,7 +228,7 @@ const AllStores = ({ className, selectedCategory }) => {
             </h2>
 
             <div className="grid grid-cols-1">
-              <div className="grid grid-cols-2">
+              <div className="grid md:grid-cols-2 gap-2">
                 {/* Alphabet Filtering */}
 
                 <div>
@@ -337,7 +337,7 @@ const AllStores = ({ className, selectedCategory }) => {
         {/* rendering UI */}
 
         <div
-          className={`min-h-screen grid grid-cols-4 gap-2 mt-4 ${className}`}
+          className={`h-fit grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-2 mt-4 ${className}`}
         >
    
           {stores?.map((store, index) => {
@@ -346,15 +346,15 @@ const AllStores = ({ className, selectedCategory }) => {
                 <div
                   key={store.id}
                   ref={lastStoreElementRef}
-                  className="border h-fit p-4 mb-4 relative rounded-lg hover:shadow-xl bg-slate-200"
+                  className="border h-fit p-4 py-4 mb-4 relative rounded-lg hover:shadow-xl bg-slate-200"
                 >
-                  <Link to={store.homepage}>
+                  <Link to={store.homepage} className="flex flex-col gap-4 ">
                     <h3 className="truncate ">{store.name}</h3>
                     <div className="h-fit">
                       <img
                         src={store.logo}
                         alt=""
-                        className="h-[6rem] w-[10rem]"
+                        className="h-[5rem] w-[10rem] max-sm:w-full"
                       />
                     </div>
                     <div className="cashback">{renderCashback(store)}</div>
@@ -371,15 +371,15 @@ const AllStores = ({ className, selectedCategory }) => {
               return (
                 <div
                   key={store.id}
-                  className="border h-fit p-4 mb-4 relative rounded-lg hover:shadow-xl bg-slate-200"
+                  className="  border h-fit py-4 p-4 mb-4 relative rounded-lg hover:shadow-xl bg-slate-200"
                 >
-                  <Link to={store.homepage}>
+                  <Link to={store.homepage} className=" flex flex-col gap-4">
                     <h3 className="truncate ">{store.name}</h3>
                     <div className="h-fit">
                       <img
                         src={store.logo}
                         alt=""
-                        className="h-[5rem] w-[10rem]"
+                        className="h-[5rem] w-[10rem] max-sm:w-full"
                       />
                     </div>
                     <div className="cashback">{renderCashback(store)}</div>

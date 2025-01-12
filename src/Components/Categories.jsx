@@ -45,6 +45,7 @@ const Categories = ({ className, selectedCategory, setSelectedCategory }) => {
       <h2 className="text-xl mb-2 font-bold">Categories</h2>
 
       {loading ? (
+        
         // Skeleton Loading UI
 
         <ul>
@@ -60,7 +61,7 @@ const Categories = ({ className, selectedCategory, setSelectedCategory }) => {
           Error: {error.message}
         </div>
       ) : (
-        <ul>
+        <ul className="max-md:h-[15vh] overflow-y-auto">
           {categories.map((category) => (
             <li
               key={category.id}
