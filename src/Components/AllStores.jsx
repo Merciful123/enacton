@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { useSearchParams, Link } from "react-router-dom";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const AllStores = ({ className, selectedCategory }) => {
-  const [stores, setStores] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
-
   const [searchQuery, setSearchQuery] = useState(
     searchParams.get("search") || ""
   );
@@ -24,7 +19,7 @@ const AllStores = ({ className, selectedCategory }) => {
   // Status options
 
   const statusOptions = ["", "publish", "draft", "trash"];
-  
+
   // Boolean filter options
 
   const booleanFilters = [
@@ -49,24 +44,6 @@ const AllStores = ({ className, selectedCategory }) => {
     }
     setSearchParams(params);
   };
-
-  // logic for managing infinite scroll
-
-  const observer = useRef();
-
-  const lastStoreElementRef = useCallback(
-    (node) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      });
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore]
-  );
 
   // handling mark as favorite
 
@@ -93,9 +70,8 @@ const AllStores = ({ className, selectedCategory }) => {
     } ${cashbackString} cashback`;
   };
 
-
   // Handling status selection
-  
+
   const handleStatusChange = (e) => {
     const value = e.target.value;
     const params = new URLSearchParams(searchParams);
@@ -122,7 +98,6 @@ const AllStores = ({ className, selectedCategory }) => {
     }
 
     setSearchParams(params);
-    setPage(1); // Reset page when sorting
   };
 
   // Handling filtering through checkbox
@@ -139,286 +114,321 @@ const AllStores = ({ className, selectedCategory }) => {
     setSearchParams(params);
   };
 
-
+ 
   // handling mark as favorite  render
 
   useEffect(() => {
     localStorage.setItem("favoriteStores", JSON.stringify(favoriteStores));
   }, [favoriteStores]);
 
-
-  // flitering and sorting logic
   
-  useEffect(() => {
-    const fetchStores = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        let url = `http://localhost:3001/stores?_page=${page}&_limit=20`;
+  // sorting, searching and flitering  logic
 
-        // Add selected category
-
-        if (selectedCategory) {
-          url += `&cats=${selectedCategory}`;
-        }
-
-        // Add search query
-
-        if (searchQuery.trim()) {
-          url += `&name_like=${searchQuery}`;
-        }
-
-        // Add sorting
-
-        const sortParam = searchParams.get("sort");
-        if (sortParam) {
-          switch (sortParam) {
-            case "name":
-              url += `&_sort=name&_order=asc`;
-              break;
-            case "featured":
-              url += `&_sort=featured&_order=desc`;
-              break;
-            case "popularity":
-              url += `&_sort=clicks&_order=desc`;
-              break;
-            case "cashback":
-              url += `&_sort=amount_type,cashback_amount&_order=asc,desc`;
-              break;
-            default:
-              break;
-          }
-        }
-
-        // Add  filters
-
-        searchParams.forEach((value, key) => {
-          url += `&${key}=${value}`;
-        });
-
-        // console.log("Fetching from:", url);
-
-        const response = await axios.get(url);
-        if (response.data.length === 0 || response.data.length < 20) {
-          setHasMore(false);
-        }
-
-        setStores((prevStores) => {
-          if (page === 1) return response.data; // Reset data on filter change
-          const newStores = response.data.filter(
-            (newStore) =>
-              !prevStores.find((prevStore) => prevStore.id === newStore.id)
-          );
-          return [...prevStores, ...newStores];
-        });
-
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  const fetchStores = async ({ pageParam = 1 }) => {
+  
+    let url = `http://localhost:3001/stores?_limit=20&_page=${pageParam}`;
+    
+    if (selectedCategory) {
+      url += `&cats=${selectedCategory}`;
+    }
+    if (searchQuery.trim()) {
+      url += `&name_like=${searchQuery}`;
+    }
+    searchParams.forEach((value, key) => {
+      if (key !== "search") {
+        url += `&${key}=${value}`;
       }
+    });
+
+    const sortParam = searchParams.get("sort");
+
+    if (sortParam) {
+      switch (sortParam) {
+        case "name":
+          url += `&_sort=name`;
+          break;
+        case "featured":
+          url += `&_sort=featured&_order=desc`;
+          break;
+        case "popularity":
+          url += `&_sort=clicks&_order=desc`;
+          break;
+        case "cashback":
+          url += `&_sort=amount_type,cashback_amount&_order=asc,desc`;
+          break;
+        default:
+          break;
+      }
+    }
+
+    const response = await axios.get(url);
+    return {
+      data: response.data,
+      nextPage: response.data.length === 20 ? pageParam + 1 : undefined,
     };
+  };
 
-    fetchStores();
-  }, [page, searchParams.toString(), searchQuery, selectedCategory]); 
+  // infinite scroll and data fetching using react-query
 
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: [
+      "stores",
+      selectedCategory,
+      searchParams.toString(),
+      searchQuery,
+    ],
+    queryFn: fetchStores,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
+    keepPreviousData: true,
+  });
 
+  const observer = useRef();
+  const lastStoreElementRef = useCallback(
+    (node) => {
+      if (isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage]
+  );
+
+  const stores = data?.pages.flatMap((page) => page.data) || [];
 
   // Handling  search input
 
   useEffect(() => {
-
-    const delaySearch = setTimeout(() => {
-      const params = new URLSearchParams(searchParams);
-
-      if (searchQuery.trim()) {
-        params.set("search", searchQuery);
-      } else {
-        params.delete("search");
-      }
-
-      setSearchParams(params);
-    }, 500); // Delay to reduce API calls
-
-    return () => clearTimeout(delaySearch);
+    const params = new URLSearchParams(searchParams);
+    if (searchQuery.trim()) {
+      params.set("search", searchQuery);
+    } else {
+      params.delete("search");
+    }
+    setSearchParams(params);
   }, [searchQuery]);
 
-
   return (
-    <div className="flex flex-col">
-      <div className="flex justify-between bg-slate-100 p-4 rounded-lg">
-        <div className="flex flex-col">
-          <h2 className="text-lg font-semibold mb-2">Filter and Sort Stores</h2>
+    <>
+      <div className="grid grid-rows-[1fr_auto]">
+        <div className="flex justify-between bg-slate-100 p-4 rounded-lg">
+          <div className="flex flex-col">
+            <h2 className="text-lg font-semibold mb-2">
+              Filter and Sort Stores
+            </h2>
 
-          <div className="grid grid-cols-1">
-            <div className="grid grid-cols-2">
-              {/* Alphabet Filtering */}
-              <div>
-                <div className="mb-4 flex flex-col">
-                  <label className="block text-sm font-medium mb-1">
-                    Filter by Alphabet
-                  </label>
-                  <div className="flex flex-wrap">
-                    {alphabet.map((letter) => (
-                      <button
-                        key={letter}
-                        className={`p-2 border rounded-md text-sm ${
-                          searchParams.get("name_like") === letter
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-100"
-                        }`}
-                        onClick={() => handleAlphabetFilter(letter)}
+            <div className="grid grid-cols-1">
+              <div className="grid grid-cols-2">
+                {/* Alphabet Filtering */}
+
+                <div>
+                  <div className="mb-4 flex flex-col">
+                    <label className="block text-sm font-medium mb-1">
+                      Filter by Alphabet
+                    </label>
+                    <div className="flex flex-wrap">
+                      {alphabet.map((letter) => (
+                        <button
+                          key={letter}
+                          className={`p-2 border rounded-md text-sm ${
+                            searchParams.get("name_like") === letter
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-100"
+                          }`}
+                          onClick={() => handleAlphabetFilter(letter)}
+                        >
+                          {letter}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Boolean Filters as Checkboxes */}
+
+                  <div className="mb-4 flex gap-2">
+                    {booleanFilters.map((filter) => (
+                      <div
+                        key={filter.name}
+                        className="flex items-center space-x-2"
                       >
-                        {letter}
-                      </button>
+                        <input
+                          type="checkbox"
+                          id={filter.name}
+                          checked={searchParams.get(filter.name) === "1"}
+                          onChange={(e) =>
+                            handleCheckboxChange(filter.name, e.target.checked)
+                          }
+                        />
+                        <label htmlFor={filter.name} className="text-sm">
+                          {filter.label}
+                        </label>
+                      </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Boolean Filters as Checkboxes */}
-                <div className="mb-4 flex gap-2">
-                  {booleanFilters.map((filter) => (
-                    <div
-                      key={filter.name}
-                      className="flex items-center space-x-2"
+                {/* sort by name, feature, popularity and cashback */}
+
+                <div>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium">Sort By</label>
+                    <select
+                      className="w-full p-2 border rounded-md"
+                      onChange={handleSortChange}
+                      value={searchParams.get("sort") || ""}
                     >
-                      <input
-                        type="checkbox"
-                        id={filter.name}
-                        checked={searchParams.get(filter.name) === "1"}
-                        onChange={(e) =>
-                          handleCheckboxChange(filter.name, e.target.checked)
-                        }
-                      />
-                      <label htmlFor={filter.name} className="text-sm">
-                        {filter.label}
-                      </label>
-                    </div>
-                  ))}
+                      <option value="">Default</option>
+                      <option value="name">Name (A-Z)</option>
+                      <option value="featured">Featured</option>
+                      <option value="popularity">Popularity</option>
+                      <option value="cashback">Cashback</option>
+                    </select>
+                  </div>
+
+                  {/* Status Filter Dropdown */}
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium">
+                      Filter by Status
+                    </label>
+                    <select
+                      className="w-full p-2 border rounded-md"
+                      onChange={handleStatusChange}
+                      value={searchParams.get("status") || ""}
+                    >
+                      {statusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status === ""
+                            ? "All"
+                            : status.charAt(0).toUpperCase() + status.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              
-              {/* sort by name, feature, popularity and cashback */}
+              {/* Search Filter */}
 
-              <div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">Sort By</label>
-                  <select
-                    className="w-full p-2 border rounded-md"
-                    onChange={handleSortChange}
-                    value={searchParams.get("sort") || ""}
-                  >
-                    <option value="">Default</option>
-                    <option value="name">Name (A-Z)</option>
-                    <option value="featured">Featured</option>
-                    <option value="popularity">Popularity</option>
-                    <option value="cashback">Cashback</option>
-                  </select>
-                </div>
-
-                {/* Status Filter Dropdown */}
-
-                <div className="mb-4">
-                  <label className="block text-sm font-medium">
-                    Filter by Status
-                  </label>
-                  <select
-                    className="w-full p-2 border rounded-md"
-                    onChange={handleStatusChange}
-                    value={searchParams.get("status") || ""}
-                  >
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status === ""
-                          ? "All"
-                          : status.charAt(0).toUpperCase() + status.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium">Search</label>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search store..."
+                  className="w-full p-2 border rounded-md"
+                />
               </div>
-
-            </div>
-
-            {/* Search Filter */}
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Search</label>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search store..."
-                className="w-full p-2 border rounded-md"
-              />
             </div>
           </div>
         </div>
-      </div>
 
-      <div className={`grid grid-cols-4 gap-2 my-[50px] ${className}`}>
+        {/* rendering UI */}
 
-        {stores.map((store, index) => {
-
-          // cheching last store
-          
-          if (stores.length === index + 1) {
-            return (
-              <div
-                ref={lastStoreElementRef}
-                key={store.id}
-                className="border p-4 mb-4 relative rounded-lg hover:shadow-lg"
-              >
-                <Link to={store.homepage}>
-                  <h3>{store.name}</h3>
-                  <div>
-                    <img src={store.logo} alt="" />
-                  </div>
-                  <div className="cashback">{renderCashback(store)}</div>
-                </Link>
-                <button
-                  className="absolute top-1 right-1 text-red-500"
-                  onClick={() => handleFavoriteClick(store.id)}
+        <div
+          className={`min-h-screen grid grid-cols-4 gap-2 mt-4 ${className}`}
+        >
+   
+          {stores?.map((store, index) => {
+            if (stores.length === index + 1) {
+              return (
+                <div
+                  key={store.id}
+                  ref={lastStoreElementRef}
+                  className="border h-fit p-4 mb-4 relative rounded-lg hover:shadow-xl bg-slate-200"
                 >
-                  {favoriteStores.includes(store.id) ? "❤️" : "🤍"}{" "}
-
-                  {/* Conditional heart icon */}
-                
-                </button>
-              </div>
-            );
-
-          } else {
-            return (
-              <div
-                key={store.id}
-                className="border p-4 mb-4 relative rounded-lg hover:shadow-lg"
-              >
-                <Link to={store.homepage}>
-                  <h3>{store.name}</h3>
-                  <div>
-                    <img src={store.logo} alt="" />
-                  </div>
-                  <div className="cashback">{renderCashback(store)}</div>
-                </Link>
-                <button
-                  className="absolute top-1 right-1 text-red-500"
-                  onClick={() => handleFavoriteClick(store.id)}
+                  <Link to={store.homepage}>
+                    <h3 className="truncate ">{store.name}</h3>
+                    <div className="h-fit">
+                      <img
+                        src={store.logo}
+                        alt=""
+                        className="h-[6rem] w-[10rem]"
+                      />
+                    </div>
+                    <div className="cashback">{renderCashback(store)}</div>
+                  </Link>
+                  <button
+                    className="absolute top-1 right-1 text-red-500"
+                    onClick={() => handleFavoriteClick(store.id)}
+                  >
+                    {favoriteStores.includes(store.id) ? "❤️" : "🤍"}
+                  </button>
+                </div>
+              );
+            } else {
+              return (
+                <div
+                  key={store.id}
+                  className="border h-fit p-4 mb-4 relative rounded-lg hover:shadow-xl bg-slate-200"
                 >
-                  {favoriteStores.includes(store.id) ? "❤️" : "🤍"}{" "}
+                  <Link to={store.homepage}>
+                    <h3 className="truncate ">{store.name}</h3>
+                    <div className="h-fit">
+                      <img
+                        src={store.logo}
+                        alt=""
+                        className="h-[5rem] w-[10rem]"
+                      />
+                    </div>
+                    <div className="cashback">{renderCashback(store)}</div>
+                  </Link>
+                  <button
+                    className="absolute top-1 right-1 text-red-500"
+                    onClick={() => handleFavoriteClick(store.id)}
+                  >
+                    {favoriteStores.includes(store.id) ? "❤️" : "🤍"}
+                  </button>
+                </div>
+              );
+            }
+          })}
 
-                  {/* Conditional heart icon */}
-                
-                </button>
-              </div>
-            );
-          }
-        })}
-        {loading && <div>Loading...</div>}
-        {!hasMore && <div>No more stores to show.</div>}
+          {/* no more data UI */}
+
+          {stores.length === 0 && !isLoading && (
+            <div className="h-fit text-red-500">Store not found!!</div>
+          )}
+
+          {/* error message */}
+
+          {error && (
+            <div className="h-fit text-red-500">Error: {error.message}</div>
+          )}
+
+          {/* skeleton UI, if data not found */}
+
+          {isLoading && (
+            <div className={` my-[50px] grid grid-cols-4 ${className} flex`}>
+              {[...Array(20)].map((_, i) => (
+                <div
+                  key={i}
+                  className="border  p-4 mb-4 relative rounded-lg animate-pulse bg-gray-200"
+                >
+                  <div className="h-6 bg-gray-300 rounded-md mb-2"></div>{" "}
+                  {/* Placeholder for title */}
+                  <div className="h-24 bg-gray-300 rounded-md"></div>{" "}
+                  {/* Placeholder for image */}
+                  <div className="h-4 bg-gray-300 rounded-md mt-2"></div>{" "}
+                  {/* Placeholder for cashback */}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

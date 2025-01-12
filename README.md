@@ -1,12 +1,13 @@
 ## Project Overview
 
-The task involves developing a web application that allows users to browse through a list of stores categorized by various parameters. Users should be able to filter, sort, and search for stores based on different criteria. Additionally, they should have the ability to bookmark their favorite stores, with these preferences stored locally and reflected in the UI.
+This is a React.js application that displays a list of stores with sorting, filtering, and search functionalities. The app uses React js, React Router, and React-Query.
+
+
 
 ## Github Repo:
-https://github.com/enacton-tech/react-intermediate
+https://github.com/Merciful123/enacton
 
-### Video Explanation
-https://app.usebubbles.com/iHAEumYaUzLzDQzhTkrWw9/untitled
+
 
 ### Setting Up the Project
 
@@ -96,7 +97,6 @@ For more information, refer to the [JSON Server Documentation](https://github.co
 
 ### Store Card Rendering
 
-- **Store Logo and Name**: Render the store card with the store logo centered followed by its name.
 
 - **Cashback Display Logic**:
   - If `cashback_enabled` is `0`, display "No cashback available".
@@ -107,43 +107,8 @@ For more information, refer to the [JSON Server Documentation](https://github.co
       - If it is "percent", suffix the `cashback_amount` with "%".
     - Ensure the `cashback_amount` is formatted to two decimal places.
 
-- **Favourite Button**: Include a favourite button in the top right corner of the store card. Clicking this button should mark the store as a favourite.
+- **Favourite Button heart icon**:  Clicking this button, user marks the store as a favourite.
 
-- **Store Card Interaction**: Clicking on the store card should redirect the user to the store's home page.
-- **Example**: "Upto $10.00 cashback" or "Flat 5.00% cashback".
+- **Store Card Interaction**: Clicking on the store card user gets redirected to the store's home page.
 
-### Links
 
-1. **Reference Page All Stores**: [Stores with Category Filter](https://laraback.enactweb.com/all-stores)
-2. **Reference Page**: [Infinite Scroll Stores Page](https://stg-app.rewardsbunny.com/all-stores)
-3. **Recording Video**: [Record with Bubbles](https://app.usebubbles.com/)
-4. **JSON Server Documentation**: [JSON Server API Documentation](https://github.com/typicode/json-server/tree/v0?tab=readme-ov-file)
-
-### Required Screens
-
-- Store Page: ![Store Page](https://img.enacton.com/ShareX/2024/03/mdRHpBKvGa.png)
-
-### Delivery Expectations
-
-1. **Code Repository**: Push the code to a public GitHub repository.
-
-2. **Documentation**: Provide well-documented code with a comprehensive README file.
-
-3. **Setup Instructions**: Include clear instructions on how to set up and run the project.
-
-4. **Application Demo**: Record a video demonstrating the application's functionality.
-
-### Evaluation Criteria
-
-Candidates will be evaluated based on the following criteria:
-
-1. **Functionality**: Does the application meet all specified requirements?
-2. **Code Quality**: Is the code well-structured, readable, and maintainable?
-3. **Documentation**: Is the codebase well-documented with clear instructions?
-4. **User Experience**: Does the application provide a smooth and intuitive user experience?
-5. **Technical Proficiency**: How effectively does the candidate utilize relevant technologies and APIs?
-6. **Delivery Quality**: Does the candidate deliver all expected deliverables with high quality?
-
-## Conclusion
-
-We're thrilled to witness your skills in action as you tackle this project. Your dedication and creativity will play a vital role in crafting a seamless user experience. Best of luck, and we're excited to see your contributions!

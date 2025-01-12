@@ -3,12 +3,14 @@ import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import Categories from "./Components/Categories";
 import AllStores from "./Components/AllStores";
+
 const user = {
   name: "Tom Cook",
   email: "tom@example.com",
   imageUrl:
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
 };
+
 const navigation = [{ name: "Stores", href: "#", current: true }];
 const userNavigation = [];
 
@@ -212,11 +214,11 @@ export default function App() {
           </header>
           <main className="">
             {/* <div className="mx-auto grid grid-cols-3 grid-flow-col max-w-7xl sm:px-6 lg:px-8"> */}
-            <div className="mx-auto  grid grid-cols-[1fr_10fr] gap-10 max-w-7xl sm:px-6 lg:px-8">
+            <div className="mx-auto  grid grid-cols-[1fr_4fr] gap-10 max-w-7xl sm:px-6 lg:px-8">
               <Categories
                 selectedCategory={selectedCategory}
                 setSelectedCategory={handleCategorySelect}
-                className=" shadow-xl min-h-4 p-2 bg-slate-100 rounded-lg"
+                className=" shadow-xl min-h-4 p-2 py-4 bg-slate-100 rounded-lg  "
                 path="cat"
               />
               <AllStores
