@@ -215,7 +215,6 @@ const AllStores = ({ className, selectedCategory }) => {
     setSearchParams(params);
   }, [searchQuery]);
 
-  
   // Reset filter and sort logic
   const handleResetFilters = () => {
     setSearchParams({
@@ -349,6 +348,7 @@ const AllStores = ({ className, selectedCategory }) => {
 
         {/* rendering UI */}
 
+        <div className="text-center text-2xl font-bold">Stores</div>
         <div
           className={`h-fit grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-2 mt-4 ${className}`}
         >
