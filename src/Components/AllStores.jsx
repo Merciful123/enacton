@@ -114,20 +114,17 @@ const AllStores = ({ className, selectedCategory }) => {
     setSearchParams(params);
   };
 
- 
   // handling mark as favorite  render
 
   useEffect(() => {
     localStorage.setItem("favoriteStores", JSON.stringify(favoriteStores));
   }, [favoriteStores]);
 
-  
   // sorting, searching and flitering  logic
 
   const fetchStores = async ({ pageParam = 1 }) => {
-  
     let url = `http://localhost:3001/stores?_limit=20&_page=${pageParam}`;
-    
+
     if (selectedCategory) {
       url += `&cats=${selectedCategory}`;
     }
@@ -217,6 +214,14 @@ const AllStores = ({ className, selectedCategory }) => {
     }
     setSearchParams(params);
   }, [searchQuery]);
+
+  
+  // Reset filter and sort logic
+  const handleResetFilters = () => {
+    setSearchParams({
+      ...(selectedCategory && { cats: selectedCategory }),
+    });
+  };
 
   return (
     <>
@@ -318,6 +323,14 @@ const AllStores = ({ className, selectedCategory }) => {
                 </div>
               </div>
 
+              {/* Reset button */}
+              <button
+                className="px-4 py-2 bg-slate-200 mb-4 mt-4  hover:bg-slate-300 text-black rounded-md"
+                onClick={handleResetFilters}
+              >
+                Reset Filters & Sorts
+              </button>
+
               {/* Search Filter */}
 
               <div className="mb-4">
@@ -339,7 +352,6 @@ const AllStores = ({ className, selectedCategory }) => {
         <div
           className={`h-fit grid lg:grid-cols-4 md:grid-cols-2 sm:grid-cols-1 gap-2 mt-4 ${className}`}
         >
-   
           {stores?.map((store, index) => {
             if (stores.length === index + 1) {
               return (
